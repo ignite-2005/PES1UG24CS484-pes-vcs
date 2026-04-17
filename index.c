@@ -185,4 +185,26 @@ int index_save(const Index *index) {
     fflush(f); fsync(fileno(f)); fclose(f);
     return rename(tmp_path, ".pes/index");
 }
-int index_add(Index *index, const char *path) { return -1; }
+int index_add(Index *index, const char *path) {
+    struct stat st;
+    if (lstat(path, &st) != 0) return -1;
+    FILE *f = fopen(path, "r");
+    if (!f) return -1;
+    uint8_t *data = malloc(st.st_size);
+    if (st.st_size > 0) fread(data, 1, st.st_size, f);
+    fclose(f);
+    ObjectID hash;
+    object_write(OBJ_BLOB, data, st.st_size, &hash);
+    free(data);
+    IndexEntry *e = index_find(index, path);
+    if (!e) {
+        if (index->count >= MAX_INDEX_ENTRIES) return -1;
+        e = &index->entries[index->count++];
+        strncpy(e->path, path, sizeof(e->path)-1);
+    }
+    e->mode = S_ISDIR(st.st_mode) ? 0040000 : (st.st_mode & S_IXUSR ? 0100755 : 0100644);
+    e->mtime_sec = st.st_mtime;
+    e->size = st.st_size;
+    e->hash = hash;
+    return index_save(index);
+}
