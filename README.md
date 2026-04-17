@@ -600,3 +600,30 @@ The following questions cover filesystem concepts beyond the implementation scop
 - **Git Internals** (Pro Git book): https://git-scm.com/book/en/v2/Git-Internals-Plumbing-and-Porcelain
 - **Git from the inside out**: https://codewords.recurse.com/issues/two/git-from-the-inside-out
 - **The Git Parable**: https://tom.preston-werner.com/2009/05/19/the-git-parable.html
+
+---
+
+# PES-VCS Analysis Report
+
+## Phase 5: Branching and Checkout
+
+**Q5.1:** A branch in Git is just a file in .git/refs/heads/... how would you implement `pes checkout <branch>`? What makes it complex?
+**Answer:** To checkout a branch, `.pes/HEAD` must be updated to contain `ref: refs/heads/<branch>`. The working directory and index must also be updated to match the files tracked in the branch's commit tree. This involves querying the tree, replacing changed files, adding missing ones, and removing files not present in the target tree. It is extremely complex because it must preserve untracked files while strictly preventing the overwrite or loss of any staged/unstaged modifications the user hasn't committed yet (handling conflicts safely).
+
+**Q5.2:** Describe how you would detect this "dirty working directory" conflict using only the index and the object store.
+**Answer:** We can iterate through the index entries and compare each entry's file metadata (size, mtime) against the actual file on disk to determine if it has unstaged modifications. Then, we check if the file's staged hash differs from the hash recorded in the target branch's tree (loaded from the object store). If the target tree differs from the index AND the working directory differs from the index for that file, it represents a conflict, and checkout must refuse to proceed to prevent data loss.
+
+**Q5.3:** "Detached HEAD" means HEAD contains a commit hash directly... What happens if you make commits in this state? How could a user recover those commits?
+**Answer:** Commits created in a detached HEAD state successfully update HEAD to point to the newly created hash, but they do NOT update any branch reference in `.pes/refs/heads/`. If the user navigates away by checking out another branch, those detached commits become unreachable via branches. A user can recover them by inspecting the object store directly for dangling commits, or via a reflog if one exists, and manually resolving the hash to create a new branch pointer file for it.
+
+## Phase 6: Garbage Collection and Space Reclamation
+
+**Q6.1:** Describe an algorithm to find and delete these objects. What data structure would you use to track "reachable" hashes efficiently?
+**Answer:** A classic mark-and-sweep algorithm works best here.
+1. **Mark Phase:** Scan all refs and HEAD to find root commit hashes. Traverse their parent chains to find historical commits. For each reachable commit, traverse its trees and blobs.
+2. **Sweep Phase:** Enumerate the physical files in `.pes/objects/`. Any file whose hash is not marked as reachable is deemed garbage and can be unlinked.
+We can use a hash set (or Bloom filter + set) to track reachability quickly. With 100,000 commits, keeping 32-byte hashes in memory requires mere megabytes, so a standard hash set is optimal.
+
+**Q6.2:** Why is it dangerous to run garbage collection concurrently... Race Condition... How does Git avoid this?
+**Answer:** While a user stages files with `pes add`, new blobs are immediately written to the object store. However, they aren't linked to a commit (and therefore a branch) until `pes commit` finishes. If GC runs in the middle of this, it sweeps `.pes/refs`, doesn't find a path to the new blobs yet, and deletes them as "unreachable garbage"—crashing the imminent commit. 
+Git avoids this by treating the index itself as a root of reachability, and primarily relies on an age-limit timeout, where newly created objects (e.g., younger than 2 weeks) are strictly exempt from being garbage collected.
