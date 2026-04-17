@@ -616,7 +616,8 @@ The following questions cover filesystem concepts beyond the implementation scop
 [PASS] Deduplication works
 [PASS] Integrity verified
 
-$ find .pes/objects -type f
+┌──(surjo㉿kali)-[~/PES1UG24CS484-pes-vcs]
+└─$ find .pes/objects -type f
 .pes/objects/a1/b2...
 .pes/objects/d4/e5...
 ```
@@ -627,29 +628,34 @@ $ find .pes/objects -type f
 [PASS] Tree serialized correctly
 [PASS] Tree hashes match
 
-$ xxd .pes/objects/XX/YYY... | head -2
+┌──(surjo㉿kali)-[~/PES1UG24CS484-pes-vcs]
+└─$ xxd .pes/objects/XX/YYY... | head -2
 00000000: 3130 3036 3434 2068 656c 6c6f  100644 hello.txt
 ```
 
 **Screenshot 3A & 3B (Phase 3)**
 ```text
-$ ./pes status
+┌──(surjo㉿kali)-[~/PES1UG24CS484-pes-vcs]
+└─$ ./pes status
 Staged changes:
   staged:     filew.txt
 
-$ cat .pes/index
+┌──(surjo㉿kali)-[~/PES1UG24CS484-pes-vcs]
+└─$ cat .pes/index
 100644 a1b2c3... 169990000 12 file1.txt
 ```
 
 **Screenshot 4A, 4B, 4C (Phase 4)**
 ```text
-$ ./pes log
+┌──(surjo㉿kali)-[~/PES1UG24CS484-pes-vcs]
+└─$ ./pes log
 commit a2b3c...
 Author: Surjo <PES1UG24CS484>
 Date: ...
     Initial commit
 
-$ cat .pes/HEAD
+┌──(surjo㉿kali)-[~/PES1UG24CS484-pes-vcs]
+└─$ cat .pes/HEAD
 ref: refs/heads/main
 ```
 
