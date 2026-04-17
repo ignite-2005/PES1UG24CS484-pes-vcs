@@ -122,4 +122,24 @@ int object_write(ObjectType type, const void *data, size_t len, ObjectID *id_out
     free(full_data);
     return 0;
 }
-int object_read(const ObjectID *id, ObjectType *type_out, void **data_out, size_t *len_out) { return -1; }
+int object_read(const ObjectID *id, ObjectType *type_out, void **data_out, size_t *len_out) {
+    char path[512];
+    object_path(id, path, sizeof(path));
+    FILE *f = fopen(path, "r");
+    if (!f) return -1;
+    fseek(f, 0, SEEK_END);
+    long file_size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    uint8_t *full_data = malloc(file_size);
+    fread(full_data, 1, file_size, f);
+    fclose(f);
+    
+    char *null_byte = memchr(full_data, '\0', file_size);
+    if (!null_byte) { free(full_data); return -1; }
+    if (strncmp((char*)full_data, "blob ", 5) == 0) *type_out = OBJ_BLOB;
+    else if (strncmp((char*)full_data, "tree ", 5) == 0) *type_out = OBJ_TREE;
+    else if (strncmp((char*)full_data, "commit ", 7) == 0) *type_out = OBJ_COMMIT;
+    
+    free(full_data);
+    return -1;
+}
