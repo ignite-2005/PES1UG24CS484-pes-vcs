@@ -147,64 +147,8 @@ int index_load(Index *index) {
     index->count = 0;
     FILE *f = fopen(".pes/index", "r");
     if (!f) return 0;
-    char line[1024];
-    while (fgets(line, sizeof(line), f)) {
-        if (index->count >= MAX_INDEX_ENTRIES) break;
-        IndexEntry *e = &index->entries[index->count++];
-        char hex[128];
-        if (sscanf(line, "%o %127s %llu %llu %255[^\n]", &e->mode, hex, &e->mtime_sec, &e->size, e->path) == 5) {
-            hex_to_hash(hex, &e->hash);
-        } else { index->count--; }
-    }
     fclose(f);
-    char tmp_path[] = ".pes/index.tmp";
-    FILE *f = fopen(tmp_path, "w");
-    if (!f) return -1;
-    for (int i = 0; i < sorted.count; i++) {
-        char hex[128];
-        hash_to_hex(&sorted.entries[i].hash, hex);
-        fprintf(f, "%06o %s %llu %llu %s\n", sorted.entries[i].mode, hex, (unsigned long long)sorted.entries[i].mtime_sec, (unsigned long long)sorted.entries[i].size, sorted.entries[i].path);
-    }
-    fflush(f); fsync(fileno(f)); fclose(f);
-    return rename(tmp_path, ".pes/index");
+    return 0;
 }
-static int compare_index_entries(const void *a, const void *b) {
-    return strcmp(((const IndexEntry *)a)->path, ((const IndexEntry *)b)->path);
-}
-int index_save(const Index *index) {
-    Index sorted = *index;
-    qsort(sorted.entries, sorted.count, sizeof(IndexEntry), compare_index_entries);
-    char tmp_path[] = ".pes/index.tmp";
-    FILE *f = fopen(tmp_path, "w");
-    if (!f) return -1;
-    for (int i = 0; i < sorted.count; i++) {
-        char hex[128];
-        hash_to_hex(&sorted.entries[i].hash, hex);
-        fprintf(f, "%06o %s %llu %llu %s\n", sorted.entries[i].mode, hex, (unsigned long long)sorted.entries[i].mtime_sec, (unsigned long long)sorted.entries[i].size, sorted.entries[i].path);
-    }
-    fflush(f); fsync(fileno(f)); fclose(f);
-    return rename(tmp_path, ".pes/index");
-}
-int index_add(Index *index, const char *path) {
-    struct stat st;
-    if (lstat(path, &st) != 0) return -1;
-    FILE *f = fopen(path, "r");
-    if (!f) return -1;
-    uint8_t *data = malloc(st.st_size);
-    if (st.st_size > 0) fread(data, 1, st.st_size, f);
-    fclose(f);
-    ObjectID hash;
-    object_write(OBJ_BLOB, data, st.st_size, &hash);
-    free(data);
-    IndexEntry *e = index_find(index, path);
-    if (!e) {
-        if (index->count >= MAX_INDEX_ENTRIES) return -1;
-        e = &index->entries[index->count++];
-        strncpy(e->path, path, sizeof(e->path)-1);
-    }
-    e->mode = S_ISDIR(st.st_mode) ? 0040000 : (st.st_mode & S_IXUSR ? 0100755 : 0100644);
-    e->mtime_sec = st.st_mtime;
-    e->size = st.st_size;
-    e->hash = hash;
-    return index_save(index);
-}
+int index_save(const Index *index) { return -1; }
+int index_add(Index *index, const char *path) { return -1; }
