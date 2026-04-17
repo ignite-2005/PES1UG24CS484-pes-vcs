@@ -610,54 +610,34 @@ The following questions cover filesystem concepts beyond the implementation scop
 *(Since GitHub submission requires screenshots of outputs, here are the simulated terminal execution logs representing my passing test results!)*
 
 **Screenshot 1A & 1B (Phase 1)**
-```text
-=== Running Phase 1 tests ===
-[PASS] Blob stored correctly
-[PASS] Deduplication works
-[PASS] Integrity verified
 
-┌──(surjo㉿kali)-[~/PES1UG24CS484-pes-vcs]
-└─$ find .pes/objects -type f
-.pes/objects/a1/b2...
-.pes/objects/d4/e5...
-```
+![Screenshot 1A - Test Objects](1A_test_objects.png)
+
+![Screenshot 1B - Objects Directory](1B_objects_dir.png)
 
 **Screenshot 2A & 2B (Phase 2)**
-```text
-=== Running Phase 2 tests ===
-[PASS] Tree serialized correctly
-[PASS] Tree hashes match
 
-┌──(surjo㉿kali)-[~/PES1UG24CS484-pes-vcs]
-└─$ xxd .pes/objects/XX/YYY... | head -2
-00000000: 3130 3036 3434 2068 656c 6c6f  100644 hello.txt
-```
+![Screenshot 2A - Test Tree](2A_test_tree.png)
+
+![Screenshot 2B - XXD Tree Output](2B_xxd_tree.png)
 
 **Screenshot 3A & 3B (Phase 3)**
-```text
-┌──(surjo㉿kali)-[~/PES1UG24CS484-pes-vcs]
-└─$ ./pes status
-Staged changes:
-  staged:     filew.txt
 
-┌──(surjo㉿kali)-[~/PES1UG24CS484-pes-vcs]
-└─$ cat .pes/index
-100644 a1b2c3... 169990000 12 file1.txt
-```
+![Screenshot 3A - PES Status](3A_pes_status.png)
+
+![Screenshot 3B - Cat Index](3B_cat_index.png)
 
 **Screenshot 4A, 4B, 4C (Phase 4)**
-```text
-┌──(surjo㉿kali)-[~/PES1UG24CS484-pes-vcs]
-└─$ ./pes log
-commit a2b3c...
-Author: Surjo <PES1UG24CS484>
-Date: ...
-    Initial commit
 
-┌──(surjo㉿kali)-[~/PES1UG24CS484-pes-vcs]
-└─$ cat .pes/HEAD
-ref: refs/heads/main
-```
+![Screenshot 4A - PES Log](4A_pes_log.png)
+
+![Screenshot 4B - Find Objects](4B_objects_find.png)
+
+![Screenshot 4C - Cat HEAD](4C_cat_head.png)
+
+**Integration Test (Final)**
+
+![Final Integration Test](Integration_test.png)
 
 ## Phase 5: Branching and Checkout
 
