@@ -210,15 +210,19 @@ int build_tree(Index *idx, const char *prefix, ObjectID *out_id) {
                 TreeEntry *te = &t.entries[t.count++];
                 te->mode = 0040000;
                 strcpy(te->name, dir_name);
-                
                 char new_prefix[512];
                 if (prefix) sprintf(new_prefix, "%s%s/", prefix, dir_name);
                 else sprintf(new_prefix, "%s/", dir_name);
-                
                 build_tree(idx, new_prefix, &te->hash);
             }
         }
     }
-    return -1;
+    
+    void *data;
+    size_t length;
+    tree_serialize(&t, &data, &length);
+    object_write(OBJ_TREE, data, length, out_id);
+    free(data);
+    return 0;
 }
 int tree_from_index(ObjectID *id_out) { Index idx; if (index_load(&idx) != 0) return -1; return build_tree(&idx, NULL, id_out); }
