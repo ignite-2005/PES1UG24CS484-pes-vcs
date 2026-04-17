@@ -177,4 +177,11 @@ int build_tree(Index *idx, const char *prefix, ObjectID *out_id) {
     free(data);
     return 0;
 }
-int tree_from_index(ObjectID *id_out) { Index idx; if (index_load(&idx) != 0) return -1; return build_tree(&idx, NULL, id_out); }
+int build_tree(Index *idx, const char *prefix, ObjectID *out_id) {
+    return -1;
+}
+int tree_from_index(ObjectID *id_out) {
+    Index idx;
+    if (index_load(&idx) != 0) return -1;
+    return build_tree(&idx, NULL, id_out);
+}
