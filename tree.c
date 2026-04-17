@@ -187,7 +187,6 @@ int build_tree(Index *idx, const char *prefix, ObjectID *out_id) {
     for (int i = 0; i < idx->count; i++) {
         const char *path = idx->entries[i].path;
         if (prefix && strncmp(path, prefix, plen) != 0) continue;
-        
         const char *rel = path + plen;
         const char *slash = strchr(rel, '/');
         
@@ -196,6 +195,28 @@ int build_tree(Index *idx, const char *prefix, ObjectID *out_id) {
             te->mode = idx->entries[i].mode;
             strcpy(te->name, rel);
             te->hash = idx->entries[i].hash;
+        } else {
+            int dir_len = slash - rel;
+            char dir_name[256];
+            strncpy(dir_name, rel, dir_len);
+            dir_name[dir_len] = '\0';
+            
+            int found = 0;
+            for (int k = 0; k < added_dirs_count; k++) {
+                if (strcmp(added_dirs[k], dir_name) == 0) { found = 1; break; }
+            }
+            if (!found) {
+                strcpy(added_dirs[added_dirs_count++], dir_name);
+                TreeEntry *te = &t.entries[t.count++];
+                te->mode = 0040000;
+                strcpy(te->name, dir_name);
+                
+                char new_prefix[512];
+                if (prefix) sprintf(new_prefix, "%s%s/", prefix, dir_name);
+                else sprintf(new_prefix, "%s/", dir_name);
+                
+                build_tree(idx, new_prefix, &te->hash);
+            }
         }
     }
     return -1;
