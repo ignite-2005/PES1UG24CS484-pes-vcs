@@ -97,12 +97,23 @@ int object_write(ObjectType type, const void *data, size_t len, ObjectID *id_out
     const char *type_str = type == OBJ_BLOB ? "blob" :
                            type == OBJ_TREE ? "tree" : "commit";
     char header[64];
-    int header_len = snprintf(header, sizeof(header), "%s %zu\0", type_str, len);
-    size_t full_len = header_len + len;
+    int header_len = snprintf(header, sizeof(header), "%s %zu", type_str, len);
+    size_t full_len = header_len + 1 + len;
     uint8_t *full_data = malloc(full_len);
     memcpy(full_data, header, header_len);
-    if (len > 0) memcpy(full_data + header_len, data, len);
+    full_data[header_len] = '\0';
+    if (len > 0) memcpy(full_data + header_len + 1, data, len);
     compute_hash(full_data, full_len, id_out);
+    
+    if (object_exists(id_out)) {
+        free(full_data);
+        return 0;
+    }
+    char path[512];
+    object_path(id_out, path, sizeof(path));
+    char dir_path[512];
+    snprintf(dir_path, sizeof(dir_path), "%.*s", (int)(strrchr(path, '/') - path), path);
+    mkdir(dir_path, 0755);
     free(full_data);
     return 0;
 }
