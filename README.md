@@ -480,7 +480,7 @@ cat .pes/index    # Human-readable text format
 
 Open `commit.c`. One function is marked `// TODO`:
 
-1. **`commit_create`** - The main commit function:
+1. **`commit_create`** — The main commit function:
    - Builds a tree from the index using `tree_from_index()` (**not** from the working directory — commits snapshot the staged state)
    - Reads current HEAD as the parent (may not exist for first commit)
    - Gets the author string from `pes_author()` (defined in `pes.h`)
