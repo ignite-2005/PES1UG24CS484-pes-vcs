@@ -157,7 +157,16 @@ int index_load(Index *index) {
         } else { index->count--; }
     }
     fclose(f);
-    return 0;
+    char tmp_path[] = ".pes/index.tmp";
+    FILE *f = fopen(tmp_path, "w");
+    if (!f) return -1;
+    for (int i = 0; i < sorted.count; i++) {
+        char hex[128];
+        hash_to_hex(&sorted.entries[i].hash, hex);
+        fprintf(f, "%06o %s %llu %llu %s\n", sorted.entries[i].mode, hex, (unsigned long long)sorted.entries[i].mtime_sec, (unsigned long long)sorted.entries[i].size, sorted.entries[i].path);
+    }
+    fflush(f); fsync(fileno(f)); fclose(f);
+    return rename(tmp_path, ".pes/index");
 }
 static int compare_index_entries(const void *a, const void *b) {
     return strcmp(((const IndexEntry *)a)->path, ((const IndexEntry *)b)->path);
@@ -165,6 +174,15 @@ static int compare_index_entries(const void *a, const void *b) {
 int index_save(const Index *index) {
     Index sorted = *index;
     qsort(sorted.entries, sorted.count, sizeof(IndexEntry), compare_index_entries);
-    return 0;
+    char tmp_path[] = ".pes/index.tmp";
+    FILE *f = fopen(tmp_path, "w");
+    if (!f) return -1;
+    for (int i = 0; i < sorted.count; i++) {
+        char hex[128];
+        hash_to_hex(&sorted.entries[i].hash, hex);
+        fprintf(f, "%06o %s %llu %llu %s\n", sorted.entries[i].mode, hex, (unsigned long long)sorted.entries[i].mtime_sec, (unsigned long long)sorted.entries[i].size, sorted.entries[i].path);
+    }
+    fflush(f); fsync(fileno(f)); fclose(f);
+    return rename(tmp_path, ".pes/index");
 }
 int index_add(Index *index, const char *path) { return -1; }
