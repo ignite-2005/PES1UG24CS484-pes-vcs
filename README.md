@@ -611,33 +611,33 @@ The following questions cover filesystem concepts beyond the implementation scop
 
 **Screenshot 1A & 1B (Phase 1)**
 
-![Screenshot 1A - Test Objects](1A_test_objects.png)
+![Screenshot 1A - Test Objects](screenshots/1A_test_objects.png)
 
-![Screenshot 1B - Objects Directory](1B_objects_dir.png)
+![Screenshot 1B - Objects Directory](screenshots/1B_objects_dir.png)
 
 **Screenshot 2A & 2B (Phase 2)**
 
-![Screenshot 2A - Test Tree](2A_test_tree.png)
+![Screenshot 2A - Test Tree](screenshots/2A_test_tree.png)
 
-![Screenshot 2B - XXD Tree Output](2B_xxd_tree.png)
+![Screenshot 2B - XXD Tree Output](screenshots/2B_xxd_tree.png)
 
 **Screenshot 3A & 3B (Phase 3)**
 
-![Screenshot 3A - PES Status](3A_pes_status.png)
+![Screenshot 3A - PES Status](screenshots/3A_pes_status.png)
 
-![Screenshot 3B - Cat Index](3B_cat_index.png)
+![Screenshot 3B - Cat Index](screenshots/3B_cat_index.png)
 
 **Screenshot 4A, 4B, 4C (Phase 4)**
 
-![Screenshot 4A - PES Log](4A_pes_log.png)
+![Screenshot 4A - PES Log](screenshots/4A_pes_log.png)
 
-![Screenshot 4B - Find Objects](4B_objects_find.png)
+![Screenshot 4B - Find Objects](screenshots/4B_objects_find.png)
 
-![Screenshot 4C - Cat HEAD](4C_cat_head.png)
+![Screenshot 4C - Cat HEAD](screenshots/4C_cat_head.png)
 
 **Integration Test (Final)**
 
-![Final Integration Test](Integration_test.png)
+![Final Integration Test](screenshots/Integration_test.png)
 
 ## Phase 5: Branching and Checkout
 
