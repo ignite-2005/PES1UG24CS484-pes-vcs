@@ -140,6 +140,14 @@ int object_read(const ObjectID *id, ObjectType *type_out, void **data_out, size_
     else if (strncmp((char*)full_data, "tree ", 5) == 0) *type_out = OBJ_TREE;
     else if (strncmp((char*)full_data, "commit ", 7) == 0) *type_out = OBJ_COMMIT;
     
+    ObjectID computed_hash;
+    compute_hash(full_data, file_size, &computed_hash);
+    if (memcmp(id->hash, computed_hash.hash, HASH_SIZE) != 0) { free(full_data); return -1; }
+    
+    size_t data_len = file_size - (null_byte + 1 - (char*)full_data);
+    *data_out = malloc(data_len);
+    memcpy(*data_out, null_byte + 1, data_len);
+    *len_out = data_len;
     free(full_data);
-    return -1;
+    return 0;
 }
