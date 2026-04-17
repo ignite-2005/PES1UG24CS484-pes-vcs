@@ -105,15 +105,20 @@ int object_write(ObjectType type, const void *data, size_t len, ObjectID *id_out
     if (len > 0) memcpy(full_data + header_len + 1, data, len);
     compute_hash(full_data, full_len, id_out);
     
-    if (object_exists(id_out)) {
-        free(full_data);
-        return 0;
-    }
+    if (object_exists(id_out)) { free(full_data); return 0; }
     char path[512];
     object_path(id_out, path, sizeof(path));
     char dir_path[512];
     snprintf(dir_path, sizeof(dir_path), "%.*s", (int)(strrchr(path, '/') - path), path);
     mkdir(dir_path, 0755);
+    
+    char tmp_path[512];
+    snprintf(tmp_path, sizeof(tmp_path), "%s.tmp", path);
+    int fd = open(tmp_path, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    write(fd, full_data, full_len);
+    fsync(fd);
+    close(fd);
+    rename(tmp_path, path);
     free(full_data);
     return 0;
 }
