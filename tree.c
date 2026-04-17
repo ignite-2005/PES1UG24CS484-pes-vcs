@@ -183,10 +183,21 @@ int build_tree(Index *idx, const char *prefix, ObjectID *out_id) {
     size_t plen = prefix ? strlen(prefix) : 0;
     char added_dirs[256][256];
     int added_dirs_count = 0;
+
+    for (int i = 0; i < idx->count; i++) {
+        const char *path = idx->entries[i].path;
+        if (prefix && strncmp(path, prefix, plen) != 0) continue;
+        
+        const char *rel = path + plen;
+        const char *slash = strchr(rel, '/');
+        
+        if (!slash) {
+            TreeEntry *te = &t.entries[t.count++];
+            te->mode = idx->entries[i].mode;
+            strcpy(te->name, rel);
+            te->hash = idx->entries[i].hash;
+        }
+    }
     return -1;
 }
-int tree_from_index(ObjectID *id_out) {
-    Index idx;
-    if (index_load(&idx) != 0) return -1;
-    return build_tree(&idx, NULL, id_out);
-}
+int tree_from_index(ObjectID *id_out) { Index idx; if (index_load(&idx) != 0) return -1; return build_tree(&idx, NULL, id_out); }
