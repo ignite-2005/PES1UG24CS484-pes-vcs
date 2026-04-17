@@ -130,6 +130,11 @@ int tree_serialize(const Tree *tree, void **data_out, size_t *len_out) {
 //
 // Returns 0 on success, -1 on error.
 int build_tree(Index *idx, const char *prefix, ObjectID *out_id) {
+    Tree t;
+    t.count = 0;
+    size_t plen = prefix ? strlen(prefix) : 0;
+    char added_dirs[256][256];
+    int added_dirs_count = 0;
     return -1;
 }
 int tree_from_index(ObjectID *id_out) {
